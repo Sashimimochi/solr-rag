@@ -1,0 +1,47 @@
+<dataConfig>
+    <dataSource
+        name="lcc"
+        type="JdbcDataSource"
+        driver="org.mariadb.jdbc.Driver"
+        url="jdbc:mysql://mysql:3306/lcc?useUnicode=true&amp;characterEncoding=UTF8&amp;useOldAliasMetaBehavior=true&amp;zeroDateTimeBehavior=convertToNull&amp;tinyInt1isBit=false&amp;allowPublicKeyRetrieval=true"
+        user="solrtutorial"
+        password="solrtutorial"
+        batchSize="-1" />
+    <document>
+        <entity
+            name="tutorial" dataSource="lcc"
+            transformer="script:SplitVector"
+            pk="id"
+
+            query="
+            SELECT
+                id
+                , media
+                , url
+                , created_at
+                , title
+                , body
+                , vector
+            FROM
+                news" >
+            <field column="vector"/>
+        </entity>
+    </document>
+    <script><![CDATA[
+        function SplitVector(row) {
+            var columnName = 'vector';
+            var value = row.get(columnName);
+            if (value === null || value === '') {
+                row.remove(columnName);
+            } else {
+                var arr = new java.util.ArrayList();
+                var sp = value.split(',');
+                for (var i = 0; i < sp.length; i++) {
+                    arr.add(sp[i]);
+                }
+                row.put(columnName, arr);
+            }
+            return row;
+        }
+    ]]></script>
+</dataConfig>

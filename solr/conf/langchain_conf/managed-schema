@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<schema name="example" version="1.6">
+    <field name="_version_" type="plong" indexed="false" stored="false"/>
+    <!--<field name="_root_" type="int" indexed="true" stored="false" docValues="false" />-->
+    <field name="_root_" type="string" indexed="true" stored="false" docValues="false"/>
+
+    <uniqueKey>id</uniqueKey>
+    <!--<uniqueKey>_id</uniqueKey>-->
+
+    <field name="id" type="string" indexed="true" stored="true" required="true"/>
+    <field name="_id" type="int" indexed="true" stored="true"/>
+    <field name="media" type="string" indexed="true" stored="false" docValues="true"/>
+    <field name="url" type="string" indexed="false" stored="false" docValues="true"/>
+    <field name="created_at" type="pdate" indexed="false" stored="false" docValues="true"/> 
+    <field name="title" type="text_ja" indexed="true" stored="true"/>
+    <field name="body" type="text_ja" indexed="true" stored="true"/>
+    <field name="vector" type="knn_vector" indexed="true" stored="true"/>
+    <field name="metadata_title_s" type="text_ja" indexed="true" stored="true"/>
+    <field name="metadata_body_s" type="text_ja" indexed="true" stored="false"/>
+    <dynamicField name="*_s" type="string" indexed="false" stored="false"/>
+    <dynamicField name="*_i" type="pint" indexed="false" stored="false"/>
+
+    <fieldType name="int" class="solr.TrieIntField" precisionStep="0" positionIncrementGap="0"/>
+    <fieldType name="pint" class="solr.IntPointField" docValues="true"/>
+    <fieldType name="plong" class="solr.LongPointField" docValues="true"/>
+    <fieldType name="string" class="solr.StrField" sortMissingLast="true" docValues="true"/>
+    <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100"/>
+    <fieldType name="pdate" class="solr.DatePointField" docValues="true"/>
+    <fieldType name="knn_vector" class="solr.DenseVectorField" vectorDimension="768" similarityFunction="cosine"/>
+    <fieldType name="text_ja" class="solr.TextField" positionIncrementGap="100">
+        <analyzer>
+            <!-- 形態素解析 -->
+            <tokenizer class="solr.JapaneseTokenizerFactory" mode="search"/>
+            <!-- 全角と半角の文字を正規化 -->
+            <filter class="solr.CJKWidthFilterFactory"/>
+            <!-- カタカナ長音の正規化 -->
+            <filter class="solr.JapaneseKatakanaStemFilterFactory" minimumLength="4"/>
+            <!-- 大文字を全て小文字に変換 -->
+            <filter class="solr.LowerCaseFilterFactory"/>
+        </analyzer>
+    </fieldType>
+</schema>

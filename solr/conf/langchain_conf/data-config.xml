@@ -1,0 +1,29 @@
+<dataConfig>
+    <dataSource
+        name="news"
+        type="JdbcDataSource"
+        driver="org.mariadb.jdbc.Driver"
+        url="jdbc:mongodb://solr:solr@mongodb:27017/solr"
+        user="solr"
+        password="solr"
+        batchSize="-1" />
+
+    <document>
+        <entity
+            name="tutorial" dataSource="news"
+            pk="id"
+
+            query="
+            SELECT
+                id
+                , media
+                , url
+                , created_at
+                , title
+                , body
+                , vector
+            FROM
+                news" >
+        </entity>
+    </document>
+</dataConfig>

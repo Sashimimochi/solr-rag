@@ -1,0 +1,11 @@
+tqdm
+langchain
+eurelis-langchain-solr-vectorstore
+mecab-python3
+sentence-transformers
+accelerate
+bitsandbytes
+ctranslate2
+llama-cpp-python
+protobuf==3.20.1
+streamlit

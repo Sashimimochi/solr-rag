@@ -1,0 +1,182 @@
+version: "3"
+
+x-solr-service: &solr-service
+  image: solr:9.4
+  ports:
+    - "8983:8983"
+    - "9854:9854"
+  command:
+    - "-Denable.packages=true"
+  volumes:
+    - "./solr/solr.in.sh:/etc/default/solr.in.sh"
+    - "./solr/conf/langchain_conf:/opt/solr/server/solr/configsets/langchain/conf"
+    - "./solr/conf/image_conf:/opt/solr/server/solr/configsets/image/conf"
+    - "./solr/logs:/var/solr/logs"
+    - "./solr/data:/var/solr/data"
+  depends_on:
+    - zookeeper1
+  links:
+    - mysql
+    - mongodb
+
+x-zookeeper-service: &zookeeper-service
+  image: zookeeper:3.7
+  environment:
+    ZOO_MY_ID: 1
+    ZOO_SERVERS: server.1=zookeeper1:2888:3888;2181
+    ZOO_4LW_COMMANDS_WHITELIST: mntr,conf,ruok
+
+x-app-service: &app-service
+  build: ./app/
+  deploy:
+    resources:
+      reservations:
+        devices:
+          - driver: nvidia
+            capabilities: [gpu]
+  environment:
+    - NVIDIA_VISIBLE_DEVICES=all
+    - NVIDIA_DRIVER_CAPABILITIES=all
+  volumes:
+    - ./app:/workspace/app
+    - ./app/logs:/var/log/app
+  working_dir: /workspace/app
+  command: "streamlit run app.py"
+  tty: true
+  ports:
+    - 8501:8501
+  links:
+    - solr_node1
+
+x-batch-service: &batch-service
+  build: ./batch/
+  volumes:
+    - ./batch:/workspace/app
+    - ./batch/logs:/var/log/app
+  working_dir: /workspace/app
+  tty: true
+  links:
+    - solr_node1
+    - zookeeper1
+    - mysql
+    - mongodb
+
+x-mysql-service: &mysql-service
+  image: mysql:8.0
+  command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+  environment:
+    - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+    - MYSQL_DATABASE=lcc
+    - MYSQL_USER=solrtutorial
+    - MYSQL_PASSWORD=solrtutorial
+  ports:
+    - "3306:3306"
+  volumes:
+    - "./mysql/data/:/data/"
+    - "./mysql/sql/:/docker-entrypoint-initdb.d/"
+    - "./mysql/conf.d:/etc/mysql/conf.d"
+
+x-prometheus-service: &prometheus-service
+  ports:
+    - 9090:9090
+  volumes:
+    - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+  image: prom/prometheus
+  links:
+    - solr_node1
+    - docker-exporter
+
+x-grafana-service: &grafana-service
+  image: grafana/grafana
+  ports:
+    - 3000:3000
+  env_file:
+    - ./grafana/grafana.env
+  volumes:
+    - ./grafana/grafana.ini:/etc/grafana/grafana.ini
+    - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+    - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+    - ./grafana/dashboards:/var/lib/grafana/dashboards
+  links:
+    - prometheus
+
+x-docker-exporter-service: &docker-exporter-service
+  volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+    - /dev/disk/:/dev/disk:ro
+  ports:
+    - 8080:8080
+  image: google/cadvisor:latest
+
+x-node-exporter-service: &node-exporter-service
+  image: quay.io/prometheus/node-exporter
+  container_name: node-exporter
+  ports:
+    - 9100:9100
+  volumes:
+    - /proc:/host/proc
+    - /sys:/host/sys
+    - /:/rootfs
+
+x-mongodb-service: &mongodb-service
+  image: mongo:7.0
+  environment:
+    MONGO_INITDB_ROOT_USERNAME: solr
+    MONGO_INITDB_ROOT_PASSWORD: solr
+
+services:
+  solr_node1:
+    <<: *solr-service
+    container_name: solr_node1
+    profiles:
+      - basic
+      - all
+  zookeeper1:
+    <<: *zookeeper-service
+    container_name: zookeeper1
+    profiles:
+      - basic
+      - all
+  app:
+    <<: *app-service
+    container_name: app
+    profiles:
+      - basic
+      - all
+      - llm
+  batch:
+    <<: *batch-service
+    container_name: batch
+    profiles:
+      - basic
+      - all
+  mysql:
+    <<: *mysql-service
+    container_name: mysql
+    profiles:
+      - basic
+      - all
+  prometheus:
+    <<: *prometheus-service
+    container_name: prometheus
+    profiles:
+      - all
+  grafana:
+    <<: *grafana-service
+    container_name: grafana
+    profiles:
+      - all
+  docker-exporter:
+    <<: *docker-exporter-service
+    container_name: "docker-exporter"
+    profiles:
+      - all
+  mongodb:
+    <<: *mongodb-service
+    container_name: mongodb
+    profiles:
+      - basic
+      - all
