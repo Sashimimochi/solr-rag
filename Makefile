@@ -2,6 +2,7 @@ LCC_DIR=./mysql/data/lcc/
 KNBC_DIR=./mysql/data/knbc/
 KWDLC_DIR=./mysql/data/kwdlc/
 LOG_DIR=./solr/logs/
+DATA_DIR=./solr/data/
 APP_PYCACHE_DIR=./app/__pycache__/
 BATCH_PYCACHE_DIR=./batch/__pycache__/
 CALM2_URL=https://huggingface.co/TheBloke/calm2-7B-chat-GGUF/blob/main/calm2-7b-chat.Q5_K_M.gguf
@@ -33,6 +34,7 @@ upload-configset:
 	bash ./scripts/upload_configset.sh langchain
 	bash ./scripts/upload_configset.sh image
 create-collection:
+	sudo chmod 777 $(DATA_DIR)
 	bash ./scripts/create_collection.sh langchain
 	bash ./scripts/create_collection.sh image
 make-collection:

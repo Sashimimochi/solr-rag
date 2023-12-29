@@ -64,8 +64,8 @@ def main():
     model_name = st.selectbox("使用するモデルを選んでください", ("Calm2", "Rinna"))
     query = st.chat_input("ex. Solrでのベクトル検索の始め方を教えてください。")
     if query:
-        #chat(query, model_name)
-        image_window(query)
+        chat(query, model_name)
+        #image_window(query)
 
 if __name__ == "__main__":
     main()
