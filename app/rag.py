@@ -80,15 +80,3 @@ class RAG:
         res = "".join([doc.page_content for doc in docs])
         logger.info(f"検索結果:{res}")
         return res
-
-    def generate_image_caption(self, query):
-        self.load_model("calm2")
-        docs = self._retrieval(query, k=1, fq={})
-        if len(docs) == 0:
-            st.error("[ERROR]インデックスが空です。")
-            return "", None
-        doc = docs[0]
-        filename = doc.metadata.get("filename")
-        context = doc.page_content
-        logger.info(f"検索結果:{context}")
-        return self.model.generate_image_caption(context=context), filename

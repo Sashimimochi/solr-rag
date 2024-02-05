@@ -56,18 +56,6 @@ ASSISTANT: """.format(context=context, query=query)
         output = self._generate(prompt)
         return output
 
-    def generate_image_caption(self, context):
-        prompt = """USER: 以下はとある画像に付けられたキャプションです。
-画像の特徴を説明するキーワードが列挙されています。
-これを日本語の文章に直してどのような写真であるか解説してください。
-========
-{context}
-========
-さて、上記の情報を元にどのような写真か考えてみましょう。
-ASSISTANT: """.format(context=context)
-        output = self._generate(prompt)
-        return output
-
 class Rinna():
     def __init__(self) -> None:
         self.llm = self.load_model()

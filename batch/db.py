@@ -62,9 +62,6 @@ class MySQLClient:
 
     def select(self, topK:int=None):
         data = []
-        #data += self.select_lcc()
-        #data += self.select_knbc()
-        #data += self.select_kwdlc()
         data += self.select_news()
         return data[:topK] if topK else data
 
