@@ -28,21 +28,18 @@ docker-clean:
 	rm -rf solr/logs/*
 	sudo rm -rf $(BATCH_PYCACHE_DIR)
 	sudo rm -rf $(APP_PYCACHE_DIR)
-launch:
+docker-launch:
 	docker-compose --profile basic up -d
 upload-configset:
 	bash ./scripts/upload_configset.sh langchain
-	bash ./scripts/upload_configset.sh image
 create-collection:
 	sudo chmod 777 $(DATA_DIR)
 	bash ./scripts/create_collection.sh langchain
-	bash ./scripts/create_collection.sh image
 make-collection:
 	@make upload-configset
 	@make create-collection
 delete-collection:
 	bash ./scripts/delete_collection.sh langchain
-	bash ./scripts/delete_collection.sh image
 add-index:
 	docker-compose exec batch python index_pipeline.py
 download-calm2:
@@ -50,9 +47,13 @@ download-calm2:
 	wget $(CALM2_URL) -O $(MODEL_DIR)
 quantize:
 	docker-compose exec app ct2-transformers-converter --model $(MODEL_NAME) --quantization int8 --output_dir ct2_model_$(MODEL_NAME)
+launch:
+	@make docker-launch
+	@make upload-configset
+	@make make-collection
 all:
-	@make launch
+	@make docker-launch
 	@make upload-configset
 	@make create-collection
-#	make create-index
-	make add-index
+	@make create-index
+	@make add-index
