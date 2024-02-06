@@ -114,6 +114,20 @@ function kwdlc() {
     fi
 }
 
+function mydata() {
+    WORKSPACE=$(pwd)
+    RELATIVE_DIR="mysql/data/mydata"
+    ROOT_DIR="$WORKSPACE/$RELATIVE_DIR"
+    O_DIR=$ROOT_DIR
+    O_FILE="mydata.tsv"
+    mkdir -p $ROOT_DIR
+    if [ ! -e "$O_DIR/$O_FILE" ];then
+        touch "$O_DIR/$O_FILE"
+    else
+        echo "[INFO] ./$RELATIVE_DIR/$O_FILE is already existing. Skip download data."
+    fi
+}
+
 get_os
 echo "[INFO] OS: ${OS}"
 lcc
@@ -121,3 +135,4 @@ sleep 10
 knbc
 sleep 10
 kwdlc
+mydata

@@ -39,7 +39,6 @@ x-app-service: &app-service
     - NVIDIA_DRIVER_CAPABILITIES=all
   volumes:
     - ./app:/workspace/app
-    - ./app/logs:/var/log/app
   working_dir: /workspace/app
   command: "streamlit run app.py"
   tty: true
@@ -52,7 +51,6 @@ x-batch-service: &batch-service
   build: ./batch/
   volumes:
     - ./batch:/workspace/app
-    - ./batch/logs:/var/log/app
   working_dir: /workspace/app
   tty: true
   links:

@@ -34,7 +34,6 @@ SELECT
     , title
     , body
 FROM kwdlc
-/*
 UNION ALL
 SELECT
     media
@@ -43,5 +42,4 @@ SELECT
     , title
     , body
 FROM lcc
-*/
 ;

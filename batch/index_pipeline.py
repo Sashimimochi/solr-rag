@@ -1,4 +1,4 @@
-from indexer import Indexer, LangChainIndexer, ImageIndexer
+from indexer import Indexer, LangChainIndexer
 from db import MySQLClient, MongoClient
 from langchain.docstore.document import Document
 from mylogging import logger
@@ -31,20 +31,8 @@ def index_from_mysql():
         docs.append(Document(page_content=content, metadata=metadata))
     indexer.add(docs=docs)
 
-def index_from_file():
-    indexer = ImageIndexer()
-    import pandas as pd
-    rows = pd.read_csv("./data/log.csv").to_dict(orient="records")
-    docs = []
-    for row in rows:
-        content = row.pop("prompt")
-        metadata = row
-        docs.append(Document(page_content=content, metadata=metadata))
-    indexer.add(docs)
-
 def main():
     index_from_mysql()
-    index_from_file()
 
 if __name__ == '__main__':
     main()

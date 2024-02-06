@@ -5,13 +5,6 @@ from eurelis_langchain_solr_vectorstore import Solr
 from embedder import Embedder
 from mylogging import logger
 
-class ImageIndexer:
-    def __init__(self) -> None:
-        self.indexer = LangChainIndexer(lang="multilingual")
-
-    def add(self, docs):
-        self.indexer.add(docs, core_name="image")
-
 class LangChainIndexer():
     def __init__(self, lang="ja") -> None:
         self.page_content_field = 'body'
