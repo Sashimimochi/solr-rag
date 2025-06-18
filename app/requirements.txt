@@ -7,5 +7,5 @@ accelerate
 bitsandbytes
 ctranslate2
 llama-cpp-python
-protobuf==3.20.1
+protobuf==4.25.8
 streamlit

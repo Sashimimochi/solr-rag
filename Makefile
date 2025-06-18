@@ -42,6 +42,7 @@ launch:
 	@make docker-launch
 	@make upload-configset
 	@make make-collection
+	open http://localhost:8501
 all:
 	@make tsv
 	@make log
@@ -51,6 +52,7 @@ all:
 	@make create-collection
 	@make quantize
 	@make add-index
+	open http://localhost:8501
 data-clean:
 	rm -rf $(DOC_DIR)
 	rm -rf $(INDEX_DIR)
