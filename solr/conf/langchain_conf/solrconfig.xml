@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <config>
-    <luceneMatchVersion>9.4.0</luceneMatchVersion>
+    <luceneMatchVersion>10.0.0</luceneMatchVersion>
 
-    <lib dir="${solr.install.dir:../../../..}/contrib/extraction/lib" regex=".*\.jar" />
-    <lib dir="${solr.install.dir:../../../..}/contrib/langid/lib/" regex=".*\.jar" />
 
     <dataDir>${solr.data.dir:}</dataDir>
 
@@ -84,6 +82,15 @@
                         addHttpRequesttoContext="false"/>
         <httpCaching never304="true" />
     </requestDispatcher>
+
+    <queryParser name="knn_text_to_vector"
+                  class="org.apache.solr.languagemodels.search.TextToVectorQParserPlugin"/>
+
+    <requestHandler name="/update/vector" class="solr.UpdateRequestHandler">
+        <lst name="defaults">
+            <str name="update.chain">textToVector</str>
+        </lst>
+    </requestHandler>
 
     <requestHandler name="/select" class="solr.SearchHandler">
         <lst name="defaults">
@@ -220,5 +227,14 @@
             </boundaryScanner>
         </highlighting>
     </searchComponent>
+
+    <updateRequestProcessorChain name="textToVector">
+        <processor class="solr.languagemodels.update.processor.factory.TextToVectorUpdateProcessorFactory">
+            <str name="inputField">body</str>
+            <str name="outputField">vector</str>
+            <str name="model">embedding</str>
+        </processor>
+        <processor class="solr.RunUpdateProcessorFactory"/>
+    </updateRequestProcessorChain>
 
 </config>

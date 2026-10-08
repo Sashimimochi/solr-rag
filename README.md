@@ -6,24 +6,7 @@
 
 ## Environment
 
-### OS
-
-The following environments have been confirmed to work.
-
-```bash
-$ cat /etc/lsb-release
-DISTRIB_ID=Ubuntu
-DISTRIB_RELEASE=20.04
-DISTRIB_CODENAME=focal
-DISTRIB_DESCRIPTION="Ubuntu 20.04.6 LTS"
-```
-
-### Machine Spec
-
-|      | Size |
-| :--- | :--- |
-| RAM  | 16GB |
-| VRAM | 8GB  |
+The application runs Solr 10.0.0 and uses Solr's Language Models module for text embedding.
 
 ### Tools
 
@@ -33,32 +16,64 @@ DISTRIB_DESCRIPTION="Ubuntu 20.04.6 LTS"
 | docker-compose | 1.29.2   |
 | wget           | 1.20.3   |
 
+## Embedding
+
+Embedding is handled by Solr itself rather than by the Python application.
+
+- Model: `BAAI/bge-m3`
+- Provider: Hugging Face Inference API
+- Dimension: 1024
+- Similarity: cosine
+
+Solr uses the Language Models module for both sides of the RAG flow:
+
+1. The `textToVector` Update Request Processor converts `body` into the `vector` field during indexing.
+2. The `knn_text_to_vector` query parser converts the user's query and runs KNN search against `vector`.
+
+The Hugging Face token is therefore required by Solr, not by the Python containers.
+
 ## Prepare
 
 If you would like to use your original data, please put `mydata.tsv` in `mysql/data/mydata` directory.
 
-```bash
-$ tree mysql/
+```text
 mysql/
-├── conf.d
-│   └── my.cnf
-└── data
-    └── mydata
+└── data/
+    └── mydata/
         └── mydata.tsv
 ```
+
+Set a Hugging Face API token before starting the initial setup:
+
+```bash
+export HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxx
+```
+
+The default model is `BAAI/bge-m3`. It produces 1024-dimensional embeddings and does not require a `query:`/`passage:` prefix.
 
 ## Usage
 
 ```bash
-# initial
+# initial setup
 $ make all
-# index already exists
+
+# start an existing setup
 $ make launch
+
+# re-index
+$ make add-index
 ```
 
-Access http://localhost:8501 by any Browser.
+Access http://localhost:8501 in a browser.
 
 ## Related Documents
 
 - [Solr でも RAG できるもん！](https://zenn.dev/sashimimochi/articles/be1122c813d989)
 - [Solr でも RAG できるもん！の裏話](https://zenn.dev/sashimimochi/articles/29d78fadaf8b17)
+
+## References
+
+- [Apache Solr Text to Vector](https://solr.apache.org/guide/solr/10_0/query-guide/text-to-vector.html)
+- [Apache Solr Solr Modules](https://solr.apache.org/guide/solr/10_0/configuration-guide/solr-modules.html)
+- [Apache Solr 10.0 Upgrade Notes](https://solr.apache.org/guide/solr/10_0/upgrade-notes/major-changes-in-solr-10.html)
+- [BAAI/bge-m3](https://huggingface.co/BAAI/bge-m3)

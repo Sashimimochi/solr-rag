@@ -9,3 +9,4 @@ ctranslate2
 llama-cpp-python
 protobuf==5.29.6
 streamlit
+requests

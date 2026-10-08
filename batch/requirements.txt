@@ -1,11 +1,5 @@
 tqdm
-langchain
 pysolr
 kazoo
-sentence-transformers
-fugashi
-ipadic
 mysql-connector-python
 pymongo
-eurelis-langchain-solr-vectorstore
-pandas
