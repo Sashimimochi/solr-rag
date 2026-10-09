@@ -232,7 +232,7 @@
         <processor class="solr.languagemodels.update.processor.factory.TextToVectorUpdateProcessorFactory">
             <str name="inputField">body</str>
             <str name="outputField">vector</str>
-            <str name="model">embedding</str>
+            <str name="model">embedding-document</str>
         </processor>
         <processor class="solr.RunUpdateProcessorFactory"/>
     </updateRequestProcessorChain>

@@ -18,19 +18,22 @@ The application runs Solr 10.0.0 and uses Solr's Language Models module for text
 
 ## Embedding
 
-Embedding is handled by Solr itself rather than by the Python application.
+Embedding is handled by Solr through Cohere's embedding API rather than by the Python application.
 
-- Model: `BAAI/bge-m3`
-- Provider: Hugging Face Inference API
+- Model: `embed-multilingual-v3.0`
+- Provider: Cohere
+- Supported languages: 100+ languages including Japanese
 - Dimension: 1024
 - Similarity: cosine
 
 Solr uses the Language Models module for both sides of the RAG flow:
 
-1. The `textToVector` Update Request Processor converts `body` into the `vector` field during indexing.
-2. The `knn_text_to_vector` query parser converts the user's query and runs KNN search against `vector`.
+1. The `textToVector` Update Request Processor converts `body` into the `vector` field using the `embedding-document` model.
+2. The `knn_text_to_vector` query parser converts the user's query and runs KNN search against `vector` using the `embedding-query` model.
 
-The Hugging Face token is therefore required by Solr, not by the Python containers.
+The two model registrations use the same Cohere model but different `inputType` values (`search_document` and `search_query`), as recommended for retrieval. The model outputs 1024-dimensional vectors, matching the Solr schema.
+
+Text is sent to Cohere's hosted API for embedding. Review Cohere's service terms, privacy requirements, rate limits, and pricing before indexing sensitive or large datasets.
 
 ## Prepare
 
@@ -43,13 +46,11 @@ mysql/
         └── mydata.tsv
 ```
 
-Set a Hugging Face API token before starting the initial setup:
+Set a Cohere API key before starting the initial setup:
 
 ```bash
-export HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxx
+export COHERE_API_KEY=your-cohere-api-key
 ```
-
-The default model is `BAAI/bge-m3`. It produces 1024-dimensional embeddings and does not require a `query:`/`passage:` prefix.
 
 ## Usage
 
@@ -76,4 +77,4 @@ Access http://localhost:8501 in a browser.
 - [Apache Solr Text to Vector](https://solr.apache.org/guide/solr/10_0/query-guide/text-to-vector.html)
 - [Apache Solr Solr Modules](https://solr.apache.org/guide/solr/10_0/configuration-guide/solr-modules.html)
 - [Apache Solr 10.0 Upgrade Notes](https://solr.apache.org/guide/solr/10_0/upgrade-notes/major-changes-in-solr-10.html)
-- [BAAI/bge-m3](https://huggingface.co/BAAI/bge-m3)
+- [Cohere Embed models and supported languages](https://docs.cohere.com/docs/cohere-embed)

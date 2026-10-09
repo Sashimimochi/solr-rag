@@ -59,7 +59,7 @@ class RAG:
         logger.info(f"fq={fq}")
 
         params = {
-            "q": f"{{!knn_text_to_vector model=embedding f=vector topK={k}}}{query}",
+            "q": f"{{!knn_text_to_vector model=embedding-query f=vector topK={k}}}{query}",
             "rows": k,
             "fl": "body",
             "wt": "json",

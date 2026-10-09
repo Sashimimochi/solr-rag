@@ -9,7 +9,7 @@ MODEL_DIR=./app/model/
 CT2_MODEL_DIR=ct2_model
 CT2_MODEL_PATH=./app/$(CT2_MODEL_DIR)
 RIINA_MODEL=rinna/japanese-gpt-neox-3.6b-instruction-ppo
-EMBEDDING_MODEL=BAAI/bge-m3
+EMBEDDING_MODEL=embed-multilingual-v3.0
 
 tsv:
 	bash ./scripts/make_data.sh
