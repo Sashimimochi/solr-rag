@@ -9,6 +9,7 @@ MODEL_DIR=./app/model/
 CT2_MODEL_DIR=ct2_model
 CT2_MODEL_PATH=./app/$(CT2_MODEL_DIR)
 RIINA_MODEL=rinna/japanese-gpt-neox-3.6b-instruction-ppo
+EMBEDDING_MODEL=embed-multilingual-v3.0
 
 tsv:
 	bash ./scripts/make_data.sh
@@ -20,8 +21,6 @@ download-calm2:
 	if [ ! -e $(MODEL_DIR)/$(CALM2_MODEL) ]; then wget $(CALM2_URL) -O $(MODEL_DIR)/$(CALM2_MODEL); fi
 docker-launch:
 	docker-compose --profile basic up -d
-create-index:
-	docker-compose exec batch python embedding_pipeline.py
 upload-configset:
 	bash ./scripts/upload_configset.sh langchain
 create-collection:
@@ -31,10 +30,13 @@ create-collection:
 make-collection:
 	@make upload-configset
 	@make create-collection
-delete-collection:
-	bash ./scripts/delete_collection.sh langchain
-add-index:
+configure-embedding:
+	bash ./scripts/configure_embedding.sh langchain $(EMBEDDING_MODEL)
+create-index:
+	@make configure-embedding
 	docker-compose exec batch python index_pipeline.py
+add-index:
+	@make create-index
 quantize:
 	if [ ! -e $(CT2_MODEL_PATH) ]; then docker-compose exec app ct2-transformers-converter --model $(RIINA_MODEL) --quantization int8 --output_dir $(CT2_MODEL_DIR); fi
 	sudo chmod -R 777 $(CT2_MODEL_PATH)
@@ -42,6 +44,7 @@ launch:
 	@make docker-launch
 	@make upload-configset
 	@make make-collection
+	@make configure-embedding
 	open http://localhost:8501
 all:
 	@make tsv

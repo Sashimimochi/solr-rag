@@ -26,7 +26,7 @@
     <fieldType name="string" class="solr.StrField" sortMissingLast="true" docValues="true"/>
     <fieldType name="text_general" class="solr.TextField" positionIncrementGap="100"/>
     <fieldType name="pdate" class="solr.DatePointField" docValues="true"/>
-    <fieldType name="knn_vector" class="solr.DenseVectorField" vectorDimension="768" similarityFunction="cosine"/>
+    <fieldType name="knn_vector" class="solr.DenseVectorField" vectorDimension="1024" similarityFunction="cosine"/>
     <fieldType name="text_ja" class="solr.TextField" positionIncrementGap="100">
         <analyzer>
             <!-- 形態素解析 -->
